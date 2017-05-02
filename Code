@@ -1,0 +1,74 @@
+Final Project
+CSCIE7
+Riley Sullivan
+
+References
+https://plot.ly/python/bar-charts/
+data from: https://www.bls.gov/qcew
+Import Libraries
+In [28]:
+
+#import libraries for the project
+import plotly
+​
+#create plotly account if you have not already (it's free for under 50 uses per day)
+plotly.tools.set_credentials_file(username='YOUR USERNAME', api_key='YOUR KEY')
+plotly.tools.set_config_file(world_readable=True, sharing='public')
+​
+#import pandas to get the data
+import plotly.plotly as py
+import pandas as pd
+import plotly.graph_objs as go
+​
+​
+
+
+#we will be referencing data from BLS
+#this is where we will set the states, year, and quarter to gather the data from
+#I will be using this example with the Q3 2016 data with the 6 NE states
+statecodes = (("RI", "44"), ("MA", "25"), ("CT", "09"), ("NH", "33" ), ("ME", "23" ), ("VT", "50"))
+year = "2016"
+quarter = "3"
+In [ ]:
+
+#this loop will reference the statecodes from above
+​
+for statecode in statecodes:
+    state = statecode[0]
+    fips = statecode[1]
+    df = pd.read_csv('https://beta.bls.gov/maps/cew/'+state+'?period='+year+'-Q'+quarter+'&industry=10&geo_id='+fips+'000&chartData=7&distribution=Quantiles&pos_color=blue&neg_color=orange&showHideChart=show&ownerType=0&req_type=xls', header=3)
+    df.head()
+​
+    Counties = df["Area Name"]
+    EmploymentChange = df["One-Year Employment Gain/Loss (Percent)"]
+    WageChange = df["On-Year Weekly Wages Gain/Loss (Percent)"]
+    EmploymentLevel = df["Employment"]
+    WageLevel = df["Average Weekly Wages"]
+​
+    WageLevelLabels = ["Average Weekly Wages : $" + str(x) for x in WageLevel]
+    EmploymentLevelLabels = ["Total Payroll Employment in County: " + str(x) for x in EmploymentLevel]
+​
+    trace1 = go.Bar(
+        x=Counties,
+        y=EmploymentChange,
+        name='Employment Change',
+        hovertext = EmploymentLevelLabels,
+        text = EmploymentLevelLabels
+    )
+    trace2 = go.Bar(
+        x=Counties,
+        y=WageChange,
+        name='Wage Change',
+        hovertext = WageLevelLabels,
+        text = WageLevelLabels
+    )
+​
+    data = [trace1, trace2]
+    layout = go.Layout(
+        barmode='group',
+        title = state + " QCEW Year-over-Year"
+    )
+​
+    fig = go.Figure(data=data, layout=layout)
+    py.iplot(fig, filename= state + ' QCEW')
+    
